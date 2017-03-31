@@ -34,7 +34,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/jeffotoni/goupload/pkg/bolt/gbolt"
+	"github.com/jeffotoni/goupload/pkg/gbolt"
 )
 
 /** Environment variables and keys */
@@ -191,9 +191,9 @@ func UrlUpload() string {
 
 }
 
-func Save(namefile string, size string, pathFile string) {
+func Save(namefile string, size int64, pathFile string) {
 
-	db := Connect()
+	db := gbolt.Connect()
 
 	defer db.Close()
 

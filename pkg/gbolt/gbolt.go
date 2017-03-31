@@ -22,7 +22,7 @@
 * @since       Version 0.1
 */
 
-package gobolt
+package gbolt
 
 import (
 	"encoding/json"
