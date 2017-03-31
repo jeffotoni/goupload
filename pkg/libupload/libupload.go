@@ -22,49 +22,84 @@
 * @since       Version 0.1
 */
 
-package main
+package libupload
 
 import (
 	"fmt"
-	"os"
+	"log"
+	"net/http"
+	"time"
 
-	goUp "github.com/jeffotoni/goupload/pkg/libupload"
+	"github.com/gorilla/mux"
 )
 
-func main() {
+/** Environment variables and keys */
 
-	// start and stop server
+var (
+	httpConf      *http.Server
+	AUTHORIZATION = `tyladfadiwkxceieixweiex747`
+	socketfileTmp = `server.red`
+	socketfile    = `server.lock`
+	Port          = "8080"
+	Scheme        = "http"
+	Database      = "ServerUpload"
+	Host          = "localhost"
+)
 
-	if len(os.Args) > 1 {
+/** [startUploadServer restful server upload] */
 
-		command := os.Args[1]
+func startUploadServer() {
 
-		if command != "" {
+	fmt.Println("Services successfully tested")
 
-			if command == "start" {
+	fmt.Println("Host: " + Host)
+	fmt.Println("Scheme:" + Scheme)
+	fmt.Println("Port: " + Port)
 
-				// Start server
+	fmt.Println("Instance POST ", UrlUpload())
+	fmt.Println("Loaded service")
 
-				goUp.startUploadServer()
+	///create route
 
-			} else if command == "stop" {
+	router := mux.NewRouter().StrictSlash(true)
 
-				// Stop server
+	router.Handle("/", http.FileServer(http.Dir("message")))
 
-				fmt.Println("under development!!!!")
+	router.
+		HandleFunc("/upload", func(w http.ResponseWriter, r *http.Request) {
+
+			if r.Method == "POST" {
+
+				// Build the method here
+
+				fmt.Fprintln(w, "http ", 200, "ok")
+
+			} else if r.Method == "GET" {
+
+				fmt.Fprintln(w, "http ", 500, "Not authorized / Allowed method POST")
 
 			} else {
 
-				fmt.Println("Usage: server {start|stop}")
+				fmt.Fprintln(w, "http ", 500, "Not authorized / Allowed method POST")
 			}
+		})
 
-		} else {
+	httpConf = &http.Server{
 
-			command = ""
-			fmt.Println("No command given")
-		}
-	} else {
+		Handler: router,
+		Addr:    Host + ":" + Port,
 
-		fmt.Println("Usage: server {start|stop}")
+		// Good idea!!! Good live!!!
+
+		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  5 * time.Second,
 	}
+
+	log.Fatal(httpConf.ListenAndServe())
+}
+
+func UrlUpload() string {
+
+	return Scheme + "://" + Host + ":" + Port + "/upload"
+
 }
