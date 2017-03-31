@@ -31,6 +31,8 @@ import (
 	"github.com/jeffotoni/goupload/pkg/libupload"
 )
 
+/** [Main function] */
+
 func main() {
 
 	// start and stop server
