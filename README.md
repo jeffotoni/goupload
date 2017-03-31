@@ -109,9 +109,6 @@ Body of StartUploadServer
 
 /** [StartUploadServer Will build our route, and make calls to the upload method and validations] */
 
-
-/** [startUploadServer restful server upload] */
-
 func StartUploadServer() {
 
 	fmt.Println("Services successfully tested")
@@ -164,6 +161,88 @@ func StartUploadServer() {
 
 ```
 
+Body of main function UploadFile
+
+Uploadfile implemented method will create a folder as the name of the token and stored the file in this created folder, this method checks the maximum size of the upload to allow or not to upload to the server.
+
+```go
+func UploadFile(w http.ResponseWriter, r *http.Request) {
+
+	// SET SIZE UPLOAD
+
+	UploadSize = 500 //MB
+
+	Autorization := r.Header.Get("Authorization")
+
+	if Autorization == "" {
+
+		fmt.Fprintln(w, "", 500, "Not Authorized")
+
+	} else {
+
+		////check database get id user
+
+		if Autorization == AUTHORIZATION {
+
+			///Valid user
+			acessekey := Autorization
+
+			sizeMaxUpload := r.ContentLength / 1048576 ///Mb
+
+			if sizeMaxUpload > UploadSize {
+
+				fmt.Println("The maximum upload size: ", UploadSize, "Mb is large: ", sizeMaxUpload, "Mb")
+				fmt.Fprintln(w, "", 500, "Unsupported file size max: ", UploadSize, "Mb")
+
+			} else {
+
+				// field upload
+
+				file, handler, _ := r.FormFile("nameupload")
+				defer file.Close()
+
+				///create dir to key
+				pathUpKeyUser := PathLocal + acessekey
+
+				os.MkdirAll(pathUpKeyUser, 0777)
+
+				pathUserAcess := PathLocal + acessekey + "/" + handler.Filename
+
+				fmt.Println(pathUserAcess)
+
+				// copy file and write
+
+				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0666)
+				defer f.Close()
+				n, _ := io.Copy(f, file)
+
+				//up_size := fmt.Sprintf("%v", r.ContentLength)
+
+				//To display results on server
+
+				name := strings.Split(handler.Filename, ".")
+				fmt.Printf("File name: %s\n", name[0])
+				fmt.Printf("extension: %s\n", name[1])
+
+				fmt.Println("size file: ", sizeMaxUpload)
+				fmt.Println("allowed: ", UploadSize, "Mb")
+
+				fmt.Printf("copied: %v bytes\n", n)
+				fmt.Printf("copied: %v Kb\n", n/1024)
+				fmt.Printf("copied: %v Mb\n", n/1048576)
+
+				fmt.Fprintln(w, "", 200, "OK")
+
+			}
+
+		} else {
+
+			fmt.Fprintln(w, "", 500, "access denied")
+		}
+	}
+}
+
+```
 
 ## Examples client
 

@@ -104,11 +104,7 @@ func StartUploadServer() {
 	log.Fatal(httpConf.ListenAndServe())
 }
 
-func UrlUpload() string {
-
-	return Scheme + "://" + Host + ":" + Port + "/upload"
-
-}
+/** [UploadFile method implemented] */
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
 
@@ -184,4 +180,10 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintln(w, "", 500, "access denied")
 		}
 	}
+}
+
+func UrlUpload() string {
+
+	return Scheme + "://" + Host + ":" + Port + "/upload"
+
 }
