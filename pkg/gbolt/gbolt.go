@@ -28,6 +28,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/boltdb/bolt"
 )
@@ -46,7 +48,17 @@ var (
 	err    error
 )
 
-var djson map[string]interface{}
+//var djson map[string]interface{}
+
+type JsonDataDb struct {
+	Key     string `json:"key"`
+	Name    string `json:"name"`
+	Size    int64  `json:"size"`
+	Path    string `json:"path"`
+	Created string `json:"key"`
+}
+
+var djson JsonDataDb
 
 func Connect() *DB {
 
@@ -67,9 +79,41 @@ func Connect() *DB {
 	}
 }
 
-func Save(key []byte, value []byte) {
+func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) error {
+
+	times := fmt.Sprintf("%s", time.Now())
+
+	stringJson := JsonDataDb{keyfile, namefile, sizefile, pathFile, times}
+
+	respJson, err := json.Marshal(stringJson)
+
+	//fmt.Println("json erro :> ", err)
+
+	keyx := []byte(keyfile)
+	valuex := []byte(respJson)
+
+	// store some data
+
+	err = Save(keyx, valuex)
+
+	if err == nil {
+
+		//fmt.Println("save sucess..")
+		return nil
+
+	} else {
+
+		//fmt.Println("Error", err)
+		return err
+	}
+
+}
+
+func Save(key []byte, value []byte) error {
 
 	db := Connect()
+
+	defer db.Close()
 
 	err := db.Update(func(tx *bolt.Tx) error {
 
@@ -88,7 +132,7 @@ func Save(key []byte, value []byte) {
 
 		} else {
 
-			fmt.Println("save sucess")
+			//fmt.Println("save sucess")
 			return nil
 		}
 	})
@@ -96,12 +140,18 @@ func Save(key []byte, value []byte) {
 	if err != nil {
 
 		fmt.Println("erro try save ", err)
+		os.Exit(1)
 	}
+
+	return nil
 }
 
 func JsonGet(key []byte) string {
 
 	db := Connect()
+
+	defer db.Close()
+
 	var valbyte []byte
 
 	err = db.View(func(tx *bolt.Tx) error {
@@ -126,6 +176,8 @@ func JsonGet(key []byte) string {
 
 	errjs := json.Unmarshal(byt, &djson)
 
+	fmt.Println("here: ", djson)
+
 	if errjs != nil {
 
 		log.Fatal(fmt.Println("Error Json: ", errjs))
@@ -137,6 +189,9 @@ func JsonGet(key []byte) string {
 func Get(key []byte) string {
 
 	db := Connect()
+
+	defer db.Close()
+
 	var valbyte []byte
 
 	err = db.View(func(tx *bolt.Tx) error {

@@ -158,8 +158,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 				bytes, _ := io.Copy(f, file)
 
 				//up_size := fmt.Sprintf("%v", r.ContentLength)
+				keyfile := acessekey + "/" + handler.Filename
 
-				Save(handler.Filename, bytes, pathUserAcess)
+				SaveDb(keyfile, handler.Filename, bytes, pathUserAcess)
 
 				//To display results on server
 
@@ -191,16 +192,17 @@ func UrlUpload() string {
 
 }
 
-func Save(namefile string, size int64, pathFile string) {
+func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) {
 
-	db := gbolt.Connect()
+	err := gbolt.SaveDb(keyfile, namefile, sizefile, pathFile)
 
-	defer db.Close()
+	if err == nil {
 
-	key := []byte(namefile)
-	value := []byte(`{"name":"jeff1@gmail.com","senha":"jeff1senha","name":"jeff1","token":"8338833837373s8383"}`)
+		fmt.Println("save sucess..")
 
-	// store some data
-	gbolt.Save(key, value)
-	fmt.Println("save sucess..")
+	} else {
+
+		fmt.Println("Error", err)
+	}
+
 }
