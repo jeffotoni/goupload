@@ -48,7 +48,7 @@ var (
 
 /** [startUploadServer restful server upload] */
 
-func startUploadServer() {
+func StartUploadServer() {
 
 	fmt.Println("Services successfully tested")
 

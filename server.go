@@ -28,7 +28,7 @@ import (
 	"fmt"
 	"os"
 
-	goUp "github.com/jeffotoni/goupload/pkg/libupload"
+	"github.com/jeffotoni/goupload/pkg/libupload"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 
 				// Start server
 
-				goUp.startUploadServer()
+				libupload.StartUploadServer()
 
 			} else if command == "stop" {
 
