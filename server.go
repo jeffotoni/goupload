@@ -37,7 +37,7 @@ import (
 /** Environment variables and keys */
 
 var (
-	confServer    *http.Server
+	httpConf      *http.Server
 	AUTHORIZATION = `tyladfadiwkxceieixweiex747`
 	socketfileTmp = `server.red`
 	socketfile    = `server.lock`
@@ -107,6 +107,8 @@ func startUploadServer() {
 
 			if r.Method == "POST" {
 
+				// Build the method here
+
 				fmt.Fprintln(w, "http ", 200, "ok")
 
 			} else if r.Method == "GET" {
@@ -119,7 +121,7 @@ func startUploadServer() {
 			}
 		})
 
-	confServer = &http.Server{
+	httpConf = &http.Server{
 
 		Handler: router,
 		Addr:    Host + ":" + Port,
@@ -130,7 +132,7 @@ func startUploadServer() {
 		ReadTimeout:  5 * time.Second,
 	}
 
-	log.Fatal(confServer.ListenAndServe())
+	log.Fatal(httpConf.ListenAndServe())
 }
 
 func UrlUpload() string {
