@@ -34,6 +34,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jeffotoni/goupload/pkg/bolt/gbolt"
 )
 
 /** Environment variables and keys */
@@ -154,9 +155,11 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0666)
 				defer f.Close()
-				n, _ := io.Copy(f, file)
+				bytes, _ := io.Copy(f, file)
 
 				//up_size := fmt.Sprintf("%v", r.ContentLength)
+
+				Save(handler.Filename, bytes, pathUserAcess)
 
 				//To display results on server
 
@@ -167,9 +170,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 				fmt.Println("size file: ", sizeMaxUpload)
 				fmt.Println("allowed: ", UploadSize, "Mb")
 
-				fmt.Printf("copied: %v bytes\n", n)
-				fmt.Printf("copied: %v Kb\n", n/1024)
-				fmt.Printf("copied: %v Mb\n", n/1048576)
+				fmt.Printf("copied: %v bytes\n", bytes)
+				fmt.Printf("copied: %v Kb\n", bytes/1024)
+				fmt.Printf("copied: %v Mb\n", bytes/1048576)
 
 				fmt.Fprintln(w, "", 200, "OK")
 
@@ -186,4 +189,18 @@ func UrlUpload() string {
 
 	return Scheme + "://" + Host + ":" + Port + "/upload"
 
+}
+
+func Save(namefile string, size string, pathFile string) {
+
+	db := Connect()
+
+	defer db.Close()
+
+	key := []byte(namefile)
+	value := []byte(`{"name":"jeff1@gmail.com","senha":"jeff1senha","name":"jeff1","token":"8338833837373s8383"}`)
+
+	// store some data
+	gbolt.Save(key, value)
+	fmt.Println("save sucess..")
 }
