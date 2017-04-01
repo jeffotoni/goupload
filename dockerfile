@@ -1,11 +1,11 @@
 FROM ubuntu:16.04
 MAINTAINER Jefferson Otoni <jeff.otoni@gmail.com>
 
-RUN apt update 
+RUN apt-get update 
 
-RUN atp upgrade
+RUN apt-get upgrade -f -y --force-yes
 
-RUN apt install --no-install-recommends -y \
+RUN apt-get install --no-install-recommends -y \
     ca-certificates \
     curl \
     mercurial \
@@ -19,7 +19,13 @@ ENV GOROOT /usr/local/go
 ENV PATH /usr/local/go/bin:/go/bin:/usr/local/bin:$PATH
 
 # Copy the local package files to the container's workspace.
-ADD . /go/src/github.com/jeffotoni/goupload
+#ADD . /go/src/github.com/jeffotoni/goupload
+
+RUN mkdir -p /usr/local/go/src/github.com/jeffotoni && cd /usr/local/go/src/github.com/jeffotoni && git clone https://github.com/jeffotoni/goupload
+RUN go get -u github.com/boltdb/bolt && go get -u github.com/gorilla/mux && go get -u github.com/jeffotoni/upload
+
+# /usr/local/go/src/github.com/jeffotoni/goupload
+# /go/src/github.com/jeffotoni/goupload
 
 # Build the jeffotoni command inside the container.
 # (You may fetch or manage dependencies here,
