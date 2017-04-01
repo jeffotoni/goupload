@@ -36,10 +36,6 @@ RUN mkdir -p /go/goupload
 
 WORKDIR /go/goupload
 
-# Build the jeffotoni command inside the container.
-# (You may fetch or manage dependencies here,
-# either manually or with a tool like "godep".)
-#RUN go install github.com/jeffotoni/goupload
 
 # Run the outyet command by default when the container starts.
 
@@ -49,6 +45,3 @@ ENTRYPOINT /go/bin/goupload start
 EXPOSE 8080
 
 CMD ["bash"]
-#CMD ["go", "run", "/go/src/github.com/jeffotoni/goupload/goupload.go"] 
-#docker run --publish 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0
-#docker run -p 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0

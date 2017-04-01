@@ -101,10 +101,11 @@ func StartUploadServer() {
 			}
 		})
 
+	//Host +
 	httpConf = &http.Server{
 
 		Handler: router,
-		Addr:    Host + ":" + Port,
+		Addr:    ":" + Port,
 
 		// Good idea!!! Good live!!!
 
