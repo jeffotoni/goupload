@@ -32,7 +32,7 @@ RUN go get -u github.com/boltdb/bolt && go get -u github.com/gorilla/mux && go g
 
 RUN cd /go/src/github.com/jeffotoni/goupload && go install
 
-WORKDIR /go/src/github.com/jeffotoni/goupload
+WORKDIR /go/src/github.com/jeffotoni
 
 # Build the jeffotoni command inside the container.
 # (You may fetch or manage dependencies here,
@@ -41,11 +41,12 @@ WORKDIR /go/src/github.com/jeffotoni/goupload
 
 # Run the outyet command by default when the container starts.
 
-#ENTRYPOINT /go/bin/goupload start
+ENTRYPOINT /go/bin/goupload start
 
 # Document that the service listens on port 8080.
-#EXPOSE 8080
+EXPOSE 8080
 
 CMD ["bash"]
 #CMD ["go", "run", "/go/src/github.com/jeffotoni/goupload/goupload.go"] 
 #docker run --publish 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0
+#docker run -p 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0

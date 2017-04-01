@@ -158,14 +158,14 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 				//IF NO EXIST
 				if !ExistDir(pathUpKeyUser) {
 
-					os.MkdirAll(pathUpKeyUser, 0755)
+					os.MkdirAll(pathUpKeyUser, 0777)
 				}
 
 				pathUserAcess := PathLocal + acessekey + "/" + handler.Filename
 
 				// copy file and write
 
-				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0755)
+				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0777)
 				defer f.Close()
 
 				bytes, _ := io.Copy(f, file)
@@ -177,7 +177,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 				name := strings.Split(handler.Filename, ".")
 				fmt.Printf("File name: %s\n", name[0])
-				fmt.Printf("extension: %s\n", name[1])
+				//fmt.Printf("extension: %s\n", name[1])
 
 				fmt.Println("size file: ", sizeMaxUpload)
 				fmt.Println("allowed: ", UploadSize, "Mb")
