@@ -25,16 +25,17 @@
 package libupload
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/jeffotoni/goupload/pkg/gbolt"
+	"github.com/jeffotoni/goupload/pkg/glogs"
 )
 
 /** Environment variables and keys */
@@ -48,8 +49,12 @@ var (
 	Scheme        = "http"
 	Database      = "ServerUpload"
 	Host          = "localhost"
-	UploadSize    int64
-	PathLocal     = "uploads/"
+
+	//Leave blank if you run the docker for example, it will receive connection from other machines
+	HostHttp = ""
+
+	UploadSize int64
+	PathLocal  = "uploads/"
 )
 
 /** [startUploadServer restful server upload] */
@@ -101,11 +106,10 @@ func StartUploadServer() {
 			}
 		})
 
-	//Host +
 	httpConf = &http.Server{
 
 		Handler: router,
-		Addr:    ":" + Port,
+		Addr:    HostHttp + ":" + Port,
 
 		// Good idea!!! Good live!!!
 
@@ -174,18 +178,27 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 				SaveDb(keyfile, handler.Filename, bytes, pathUserAcess)
 
-				//To display results on server
+				// Generates a log of everything that happens on the server
 
-				name := strings.Split(handler.Filename, ".")
-				fmt.Printf("File name: %s\n", name[0])
-				//fmt.Printf("extension: %s\n", name[1])
+				flag.Parse()
+				glogs.LogNew(*glogs.PathLog)
 
-				fmt.Println("size file: ", sizeMaxUpload)
-				fmt.Println("allowed: ", UploadSize, "Mb")
+				glogs.Log.Printf("......................start upload .........................")
+				glogs.Log.Printf("Authorization: %s\n", AUTHORIZATION)
+				glogs.Log.Printf("Path dir: %s\n", pathUpKeyUser)
+				glogs.Log.Printf("Path file: %s\n", pathUserAcess)
+				glogs.Log.Printf("File: %s\n", handler.Filename)
+				glogs.Log.Println("Size: ", sizeMaxUpload)
+				glogs.Log.Println("Allowed: ", UploadSize, "Mb")
+				glogs.Log.Printf("Copied: %v bytes\n", bytes)
+				glogs.Log.Printf("Copied: %v Kb\n", bytes/1024)
+				glogs.Log.Printf("Copied: %v Mb\n", bytes/1048576)
+				glogs.Log.Printf("Database key: \n", keyfile)
 
-				fmt.Printf("copied: %v bytes\n", bytes)
-				fmt.Printf("copied: %v Kb\n", bytes/1024)
-				fmt.Printf("copied: %v Mb\n", bytes/1048576)
+				glogs.Log.Printf("...........................................................")
+				glogs.Log.Printf(" ")
+
+				time.Sleep(1 * time.Second)
 
 				fmt.Fprintln(w, "", 200, "OK")
 
@@ -223,7 +236,7 @@ func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) {
 
 	if err == nil {
 
-		fmt.Println("save sucess..")
+		fmt.Sprintf("save sucess..")
 
 	} else {
 
