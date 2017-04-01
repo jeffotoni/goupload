@@ -32,7 +32,9 @@ RUN go get -u github.com/boltdb/bolt && go get -u github.com/gorilla/mux && go g
 
 RUN cd /go/src/github.com/jeffotoni/goupload && go install
 
-WORKDIR /go/src/github.com/jeffotoni
+RUN mkdir -p /go/goupload
+
+WORKDIR /go/goupload
 
 # Build the jeffotoni command inside the container.
 # (You may fetch or manage dependencies here,
