@@ -56,6 +56,16 @@ var (
 
 func StartUploadServer() {
 
+	// Start ping database
+
+	gbolt.Save("Ping", "ok")
+
+	if gbolt.Get("Ping") != "ok" {
+
+		fmt.Println("Services Error Data Base!")
+		os.Exit(1)
+	}
+
 	fmt.Println("Services successfully tested")
 
 	fmt.Println("Host: " + Host)
@@ -145,19 +155,20 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 				///create dir to key
 				pathUpKeyUser := PathLocal + acessekey
 
-				os.MkdirAll(pathUpKeyUser, 0777)
+				//IF NO EXIST
+				if !ExistDir(pathUpKeyUser) {
+
+					os.MkdirAll(pathUpKeyUser, 0755)
+				}
 
 				pathUserAcess := PathLocal + acessekey + "/" + handler.Filename
 
-				fmt.Println(pathUserAcess)
-
 				// copy file and write
 
-				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0666)
+				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0755)
 				defer f.Close()
-				bytes, _ := io.Copy(f, file)
 
-				//up_size := fmt.Sprintf("%v", r.ContentLength)
+				bytes, _ := io.Copy(f, file)
 				keyfile := acessekey + "/" + handler.Filename
 
 				SaveDb(keyfile, handler.Filename, bytes, pathUserAcess)
@@ -184,6 +195,19 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintln(w, "", 500, "access denied")
 		}
 	}
+}
+
+func ExistDir(name string) bool {
+
+	if _, err := os.Stat(name); err != nil {
+
+		if os.IsNotExist(err) {
+
+			return false
+		}
+	}
+
+	return true
 }
 
 func UrlUpload() string {

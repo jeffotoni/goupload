@@ -35,9 +35,9 @@ import (
 )
 
 var (
-	Database = []byte("UploadServerDb")
+	Database = []byte("DBGoupload")
 	DirDb    = "db"
-	PathDb   = "db/bolt.db"
+	PathDb   = "db/gbolt.db"
 )
 
 type DB struct {
@@ -61,54 +61,42 @@ type JsonDataDb struct {
 
 var djson JsonDataDb
 
+/** Connect bolt db */
+
 func Connect() *DB {
 
-	if dbbolt != nil {
+	// Can not leave singleton the bank has to close every call,
+	// save, update, get etc ..
 
-		return &DB{dbbolt}
+	DataBaseTest(PathDb)
 
-	} else {
-
-		// If the directory and file db does not exist create
-
-		if !ExistDb(PathDb) {
-
-			///CREATED
-
-			os.MkdirAll(DirDb, 0755)
-			CreateFileDb(PathDb)
-		}
-
-		dbbolt, err = bolt.Open(PathDb, 0644, nil)
-
-		if err != nil {
-
-			log.Fatal(err)
-		}
-
-		return &DB{dbbolt}
-
-		// } else {
-
-		// 	return &DB{}
-		// }
+	dbbolt, err := bolt.Open(PathDb, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		log.Fatal("connect error: ", err)
 	}
+
+	return &DB{dbbolt}
+
 }
 
-func CreateFileDb(path string) {
+func DataBaseTest(PathDb string) {
+
+	if !ExistDb(DirDb) {
+
+		os.MkdirAll(DirDb, 0755)
+	}
 
 	// detect if file exists
 
-	var _, err = os.Stat(path)
+	if !ExistDb(PathDb) {
 
-	// create file if not exists
-	if os.IsNotExist(err) {
-
-		var file, err = os.Create(path)
-
+		var file, err = os.Create(PathDb)
 		checkError(err)
-
 		defer file.Close()
+
+		w, errx := os.OpenFile(PathDb, os.O_WRONLY|os.O_CREATE, 0644)
+		checkError(errx)
+		defer w.Close()
 	}
 }
 
@@ -133,14 +121,9 @@ func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) er
 
 	respJson, err := json.Marshal(stringJson)
 
-	//fmt.Println("json erro :> ", err)
+	respJsonX := string(respJson)
 
-	keyx := []byte(keyfile)
-	valuex := []byte(respJson)
-
-	// store some data
-
-	err = Save(keyx, valuex)
+	err = Save(keyfile, respJsonX)
 
 	if err == nil {
 
@@ -153,43 +136,6 @@ func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) er
 		return err
 	}
 
-}
-
-func Save(key []byte, value []byte) error {
-
-	db := Connect()
-
-	defer db.Close()
-
-	err := db.Update(func(tx *bolt.Tx) error {
-
-		bucket, err := tx.CreateBucketIfNotExists(Database)
-
-		if err != nil {
-
-			return err
-		}
-
-		err = bucket.Put(key, value)
-
-		if err != nil {
-
-			return err
-
-		} else {
-
-			//fmt.Println("save sucess")
-			return nil
-		}
-	})
-
-	if err != nil {
-
-		fmt.Println("erro try save ", err)
-		os.Exit(1)
-	}
-
-	return nil
 }
 
 func JsonGet(key []byte) string {
@@ -232,17 +178,60 @@ func JsonGet(key []byte) string {
 	return string(valbyte)
 }
 
-func Get(key []byte) string {
+func Save(keyS string, valueS string) error {
 
 	db := Connect()
 
 	defer db.Close()
+
+	key := []byte(keyS)
+	value := []byte(valueS)
+
+	err := db.Update(func(tx *bolt.Tx) error {
+
+		bucket, err := tx.CreateBucketIfNotExists(Database)
+
+		if err != nil {
+
+			return err
+		}
+
+		err = bucket.Put(key, value)
+
+		if err != nil {
+
+			return err
+
+		} else {
+
+			//fmt.Println("save sucess")
+			return nil
+		}
+	})
+
+	if err != nil {
+
+		fmt.Println("erro try save ", err)
+		os.Exit(1)
+	}
+
+	return nil
+}
+
+func Get(keyS string) string {
+
+	db := Connect()
+
+	defer db.Close()
+
+	key := []byte(keyS)
 
 	var valbyte []byte
 
 	err = db.View(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(Database)
+
 		if bucket == nil {
 			return fmt.Errorf("Bucket %q not found!", Database)
 		}
@@ -253,7 +242,8 @@ func Get(key []byte) string {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+
+		log.Fatal("Error open db, ", err)
 	}
 
 	return string(valbyte)
@@ -262,7 +252,7 @@ func Get(key []byte) string {
 func checkError(err error) {
 
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("Error Database: ", err.Error())
 		os.Exit(0)
 	}
 }
