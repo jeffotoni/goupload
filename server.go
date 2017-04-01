@@ -36,10 +36,13 @@ import (
 func main() {
 
 	// start and stop server
+	fmt.Println(len(os.Args))
 
 	if len(os.Args) > 1 {
 
 		command := os.Args[1]
+
+		fmt.Println("command: ", command)
 
 		if command != "" {
 

@@ -36,6 +36,7 @@ import (
 
 var (
 	Database = []byte("UploadServerDb")
+	DirDb    = "db"
 	PathDb   = "db/bolt.db"
 )
 
@@ -68,6 +69,16 @@ func Connect() *DB {
 
 	} else {
 
+		// If the directory and file db does not exist create
+
+		if !ExistDb(PathDb) {
+
+			///CREATED
+
+			os.MkdirAll(DirDb, 0755)
+			CreateFileDb(PathDb)
+		}
+
 		dbbolt, err = bolt.Open(PathDb, 0644, nil)
 
 		if err != nil {
@@ -76,7 +87,42 @@ func Connect() *DB {
 		}
 
 		return &DB{dbbolt}
+
+		// } else {
+
+		// 	return &DB{}
+		// }
 	}
+}
+
+func CreateFileDb(path string) {
+
+	// detect if file exists
+
+	var _, err = os.Stat(path)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+
+		var file, err = os.Create(path)
+
+		checkError(err)
+
+		defer file.Close()
+	}
+}
+
+func ExistDb(name string) bool {
+
+	if _, err := os.Stat(name); err != nil {
+
+		if os.IsNotExist(err) {
+
+			return false
+		}
+	}
+
+	return true
 }
 
 func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) error {
@@ -211,4 +257,12 @@ func Get(key []byte) string {
 	}
 
 	return string(valbyte)
+}
+
+func checkError(err error) {
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(0)
+	}
 }
