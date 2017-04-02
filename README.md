@@ -22,7 +22,7 @@ If you prefer dockerfile available so you can build in your image and run the go
 
 ## A small summary 
 
-* [goupload.go]
+[goupload.go]
 
 A simple restful server to receive common and encrypted files will store the file on the server.
 You will use port 8080 for communication with your api, will be written a no-sql database boltdb all 
@@ -33,13 +33,48 @@ uploads made on the server, will be generated a log on disk of all accesses.
 
 docker [`Installing`] (Docker https://docs.docker.com/engine/installation)
 
-Copy dockerfile to your directory
+
+## Clone this repo into your GOPATH
+
 ```
-# docker build -t ubuntu16.4/gouload:version1.0 .
+git clone https://github.com/jeffotoni/goupload
+```
 
-# docker images
+dockerfile-golang
+```
+FROM jeffotoni/golang
+MAINTAINER Jefferson Otoni Lima <jeff.otoni@gmail.com>
+ADD . /go/src/github.com/jeffotoni/goupload
+RUN go install github.com/jeffotoni/goupload
+RUN mkdir -p /go/goupload
+WORKDIR /go/goupload
+ENTRYPOINT /go/bin/goupload start
+EXPOSE 8080
+```
 
-# docker run -p 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0
+Building image
+```
+# docker build -f dockerfile-golang -t jeffotoni/goupload:v1 .
+
+```
+
+Start image and creating container
+```
+# docker run -it --rm --name goupload-run -p 8080:8080 -v /yourpath/docker:/go/goupload  jeffotoni/goupload:v1
+
+```
+
+There is another possibility, which is of the pull in a complete image
+
+Pull in the image
+```
+# docker pull jeffotoni/golang-goupload
+
+```
+
+Start image and creating container
+```
+# docker run -it --rm --name goupload-run -p 8080:8080 -v /yourpath/docker:/go/goupload  jeffotoni/golang-goupload:v1
 
 ```
 
@@ -48,11 +83,15 @@ Now is to test and see if everything is ok
 Sending a file to the server
 ```
 # curl -X POST -H 'Authorization:tyladfadiwkxceieixweiex747' --form nameupload=@Yourfile http://localhost:4001/upload
+
 ```
 
 Visualizing all logs generated in real time
 ```
 # docker exec id-container tail -f /go/goupload/goupload.log
+# or
+# tail -f /yourpath/docker/goupload.log
+
 ```
 
 Listing container ports
@@ -71,6 +110,8 @@ the access log and where it will store the uploads made by the client
 
 ```
 # docker exec id-container ls -lh /go/goupload
+# or
+# ls -lh /yourpath/docker/
 ```
 
 Here are all sources of goupload
@@ -79,14 +120,40 @@ Here are all sources of goupload
 
 ```
 
-If you want to enter the container to have a look or change something you believe is necessary.
+If you want to get into the container to have a look or change something that you think is necessary you will not be able to get the CMD ["bash"] in dockerfile, if you are interested you can build another dockerfile by adding this line at the end Of the file it would look like this:
+```
+FROM jeffotoni/golang
+MAINTAINER Jefferson Otoni Lima <jeff.otoni@gmail.com>
+ADD . /go/src/github.com/jeffotoni/goupload
+RUN go install github.com/jeffotoni/goupload
+RUN mkdir -p /go/goupload
+WORKDIR /go/goupload
+ENTRYPOINT /go/bin/goupload start
+EXPOSE 8080
+CMD ["bash"]
+```
+
+Building image
+```
+# docker build -f dockerfile-golang-cmd -t jeffotoni/goupload-cmd:v1 .
+
+```
+
+Start image and creating container
+```
+# docker run -it --rm --name goupload-run-cmd -p 8081:8080 -v /yourpath-cmd/docker:/go/goupload  jeffotoni/goupload-cmd:v1
+
+```
+
+Enter the container
 ```
 # docker exec -ti id-container bash
 ```
 
-## Clone this repo into your GOPATH
+## Install local on your machine 
 
-```sh
+Clone this repo into your GOPATH
+```
 git clone https://github.com/jeffotoni/goupload
 
 ```
@@ -100,7 +167,7 @@ got get -u github.com/jeffotoni/goupload
 
 ```
 
-## Run the program
+## Run the program local on your machine
 
 ```go
 # go run goupload.go start
@@ -139,7 +206,7 @@ Stopping the server
 
 ```
 
-## You can also Build goupload.go 
+## You can also build goupload.go 
 
 ```go
 # go build goupload.go
