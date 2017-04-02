@@ -23,18 +23,26 @@ If you prefer dockerfile available so you can build in your image and run the go
 ## A small summary 
 
 * [goupload.go]
+
 A simple restful server to receive common and encrypted files will store the file on the server.
 You will use port 8080 for communication with your api, will be written a no-sql database boltdb all 
 uploads made on the server, will be generated a log on disk of all accesses.
 
 
-## Docker [`Installing`] (Docker https://docs.docker.com/engine/installation)
+## Docker 
+
+docker [`Installing`] (Docker https://docs.docker.com/engine/installation)
 
 Copy dockerfile to your directory
 ```
 # docker build -t ubuntu16.4/gouload:version1.0 .
+
+# docker images
+
 # docker run -p 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0
+
 ```
+
 Now is to test and see if everything is ok
 
 Sending a file to the server
@@ -52,6 +60,12 @@ Listing container ports
 # docker exec id-container nmap localhost
 ```
 
+Listing the processes of your container
+```
+# docker exec id-container ps aux
+
+```
+
 Here is where the running program is located, here will be generated the no-sql boltdb database, 
 the access log and where it will store the uploads made by the client
 
@@ -63,6 +77,10 @@ Here are all sources of goupload
 ```
 # docker exec id-container ls -lh /go/src/github.com/jeffotoni
 ```
+
+If you want to enter the container to have a look or change something you believe is necessary.
+# docker exec -ti id-container bash
+
 
 ## Clone this repo into your GOPATH
 
@@ -259,6 +277,9 @@ Body of main function UploadFile
 Uploadfile implemented method will create a folder as the name of the token and stored the file in this created folder, this method checks the maximum size of the upload to allow or not to upload to the server.
 
 ```go
+
+/** [UploadFile method implemented] */
+
 func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	// SET SIZE UPLOAD
@@ -297,32 +318,45 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 				///create dir to key
 				pathUpKeyUser := PathLocal + acessekey
 
-				os.MkdirAll(pathUpKeyUser, 0777)
+				//IF NO EXIST
+				if !ExistDir(pathUpKeyUser) {
+
+					os.MkdirAll(pathUpKeyUser, 0777)
+				}
 
 				pathUserAcess := PathLocal + acessekey + "/" + handler.Filename
 
-				fmt.Println(pathUserAcess)
-
 				// copy file and write
 
-				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0666)
+				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0777)
 				defer f.Close()
-				n, _ := io.Copy(f, file)
 
-				//up_size := fmt.Sprintf("%v", r.ContentLength)
+				bytes, _ := io.Copy(f, file)
+				keyfile := acessekey + "/" + handler.Filename
 
-				//To display results on server
+				SaveDb(keyfile, handler.Filename, bytes, pathUserAcess)
 
-				name := strings.Split(handler.Filename, ".")
-				fmt.Printf("File name: %s\n", name[0])
-				fmt.Printf("extension: %s\n", name[1])
+				// Generates a log of everything that happens on the server
 
-				fmt.Println("size file: ", sizeMaxUpload)
-				fmt.Println("allowed: ", UploadSize, "Mb")
+				flag.Parse()
+				glogs.LogNew(*glogs.PathLog)
 
-				fmt.Printf("copied: %v bytes\n", n)
-				fmt.Printf("copied: %v Kb\n", n/1024)
-				fmt.Printf("copied: %v Mb\n", n/1048576)
+				glogs.Log.Printf("......................start upload .........................")
+				glogs.Log.Printf("Authorization: %s\n", AUTHORIZATION)
+				glogs.Log.Printf("Path dir: %s\n", pathUpKeyUser)
+				glogs.Log.Printf("Path file: %s\n", pathUserAcess)
+				glogs.Log.Printf("File: %s\n", handler.Filename)
+				glogs.Log.Println("Size: ", sizeMaxUpload)
+				glogs.Log.Println("Allowed: ", UploadSize, "Mb")
+				glogs.Log.Printf("Copied: %v bytes\n", bytes)
+				glogs.Log.Printf("Copied: %v Kb\n", bytes/1024)
+				glogs.Log.Printf("Copied: %v Mb\n", bytes/1048576)
+				glogs.Log.Printf("Database key: %s\n", keyfile)
+
+				glogs.Log.Printf("...........................................................")
+				glogs.Log.Printf(" ")
+
+				time.Sleep(1 * time.Second)
 
 				fmt.Fprintln(w, "", 200, "OK")
 
