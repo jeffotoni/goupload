@@ -50,7 +50,8 @@ var (
 	Database      = "ServerUpload"
 	Host          = "localhost"
 
-	//Leave blank if you run the docker for example, it will receive connection from other machines
+	//Leave blank if you run the docker for example, it will receive
+	//connection from other machines
 	HostHttp = ""
 
 	UploadSize int64
@@ -211,6 +212,8 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/** [ExistDir Test if directory exists] */
+
 func ExistDir(name string) bool {
 
 	if _, err := os.Stat(name); err != nil {
@@ -223,6 +226,8 @@ func ExistDir(name string) bool {
 
 	return true
 }
+
+/** [UrlUpload Mount url upload] */
 
 func UrlUpload() string {
 

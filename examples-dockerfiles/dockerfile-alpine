@@ -1,0 +1,22 @@
+FROM golang:1.8.0-alpine
+
+MAINTAINER Jefferson Otoni Lima <jeff.otoni@gmail.com>
+
+RUN apk update && apk add git
+
+ADD . /go/src/github.com/jeffotoni/goupload
+
+RUN go get -u github.com/boltdb/bolt && go get -u github.com/gorilla/mux
+
+RUN go install github.com/jeffotoni/goupload
+
+RUN mkdir -p /go/goupload
+
+WORKDIR /go/goupload
+
+ENTRYPOINT /go/bin/goupload start
+
+EXPOSE 8080
+
+CMD ["bash"]
+

@@ -1,0 +1,15 @@
+FROM jeffotoni/golang
+
+MAINTAINER Jefferson Otoni Lima <jeff.otoni@gmail.com>
+
+ADD . /go/src/github.com/jeffotoni/goupload
+
+RUN go install github.com/jeffotoni/goupload
+
+RUN mkdir -p /go/goupload
+
+WORKDIR /go/goupload
+
+ENTRYPOINT /go/bin/goupload start
+
+EXPOSE 8080

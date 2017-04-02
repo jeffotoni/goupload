@@ -373,6 +373,38 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 ```
 
+Body of main function SaveDb
+
+The data is saved in boltdb
+
+```go
+
+func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) error {
+
+	times := fmt.Sprintf("%s", time.Now())
+
+	stringJson := JsonDataDb{keyfile, namefile, sizefile, pathFile, times}
+
+	respJson, err := json.Marshal(stringJson)
+
+	respJsonX := string(respJson)
+
+	err = Save(keyfile, respJsonX)
+
+	if err == nil {
+
+		//fmt.Println("save sucess..")
+		return nil
+
+	} else {
+
+		//fmt.Println("Error", err)
+		return err
+	}
+
+}
+```
+
 ## Examples client
 
 Uploading with Authorization

@@ -79,6 +79,8 @@ func Connect() *DB {
 
 }
 
+/** [DataBaseTest This method is if there is a directory of the database
+if it does not exist it creates the directory and the file that we can call the bucket.] */
 func DataBaseTest(PathDb string) {
 
 	if !ExistDb(DirDb) {
@@ -100,6 +102,7 @@ func DataBaseTest(PathDb string) {
 	}
 }
 
+/** [ExistDb Method only tests whether directory or file exists] */
 func ExistDb(name string) bool {
 
 	if _, err := os.Stat(name); err != nil {
@@ -113,6 +116,7 @@ func ExistDb(name string) bool {
 	return true
 }
 
+/** [SaveDb This method prepares the whole json string to save in boltdb] */
 func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) error {
 
 	times := fmt.Sprintf("%s", time.Now())
@@ -135,14 +139,18 @@ func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) er
 		//fmt.Println("Error", err)
 		return err
 	}
-
 }
 
-func JsonGet(key []byte) string {
+/** [JsonGet This method is responsible for returning the
+content in json format] */
+
+func JsonGet(keyS string) string {
 
 	db := Connect()
 
 	defer db.Close()
+
+	key := []byte(keyS)
 
 	var valbyte []byte
 
@@ -177,6 +185,8 @@ func JsonGet(key []byte) string {
 
 	return string(valbyte)
 }
+
+/** [Save This method is responsible for saving on boltdb] */
 
 func Save(keyS string, valueS string) error {
 
@@ -218,6 +228,8 @@ func Save(keyS string, valueS string) error {
 	return nil
 }
 
+/** [Get This method returns a string result as the last key] */
+
 func Get(keyS string) string {
 
 	db := Connect()
@@ -248,6 +260,8 @@ func Get(keyS string) string {
 
 	return string(valbyte)
 }
+
+/** [checkError Test the errors] */
 
 func checkError(err error) {
 
