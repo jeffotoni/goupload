@@ -82,7 +82,7 @@ Now is to test and see if everything is ok
 
 Sending a file to the server
 ```
-# curl -X POST -H 'Authorization:tyladfadiwkxceieixweiex747' --form nameupload=@Yourfile http://localhost:4001/upload
+# curl -X POST -H 'Authorization:tyladfadiwkxceieixweiex747' --form nameupload=@Yourfile http://localhost:8080/upload
 
 ```
 
@@ -120,34 +120,10 @@ Here are all sources of goupload
 
 ```
 
-If you want to get into the container to have a look or change something that you think is necessary you will not be able to get the CMD ["bash"] in dockerfile, if you are interested you can build another dockerfile by adding this line at the end Of the file it would look like this:
-```
-FROM jeffotoni/golang
-MAINTAINER Jefferson Otoni Lima <jeff.otoni@gmail.com>
-ADD . /go/src/github.com/jeffotoni/goupload
-RUN go install github.com/jeffotoni/goupload
-RUN mkdir -p /go/goupload
-WORKDIR /go/goupload
-ENTRYPOINT /go/bin/goupload start
-EXPOSE 8080
-CMD ["bash"]
-```
-
-Building image
-```
-# docker build -f dockerfile-golang-cmd -t jeffotoni/goupload-cmd:v1 .
-
-```
-
-Start image and creating container
-```
-# docker run -it --rm --name goupload-run-cmd -p 8081:8080 -v /yourpath-cmd/docker:/go/goupload  jeffotoni/goupload-cmd:v1
-
-```
-
+If you want to get into the container to have a look or change something that you think
 Enter the container
 ```
-# docker exec -ti id-container bash
+# docker exec -ti id-container /bin/sh
 ```
 
 ## Install local on your machine 
