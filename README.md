@@ -76,11 +76,13 @@ the access log and where it will store the uploads made by the client
 Here are all sources of goupload
 ```
 # docker exec id-container ls -lh /go/src/github.com/jeffotoni
+
 ```
 
 If you want to enter the container to have a look or change something you believe is necessary.
+```
 # docker exec -ti id-container bash
-
+```
 
 ## Clone this repo into your GOPATH
 

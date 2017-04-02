@@ -1,4 +1,5 @@
-FROM ubuntu:16.04
+#FROM ubuntu:16.04
+FROM Alpine:3.5
 
 MAINTAINER Jefferson Otoni <jeff.otoni@gmail.com>
 
