@@ -31,28 +31,38 @@ uploads made on the server, will be generated a log on disk of all accesses.
 ## Docker [`Installing`] (Docker https://docs.docker.com/engine/installation)
 
 Copy dockerfile to your directory
-
+```
 # docker build -t ubuntu16.4/gouload:version1.0 .
 # docker run -p 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0
-
+```
 Now is to test and see if everything is ok
 
 Sending a file to the server
+```
 # curl -X POST -H 'Authorization:tyladfadiwkxceieixweiex747' --form nameupload=@Yourfile http://localhost:4001/upload
+```
 
 Visualizing all logs generated in real time
+```
 # docker exec id-container tail -f /go/goupload/goupload.log
+```
 
 Listing container ports
+```
 # docker exec id-container nmap localhost
+```
 
 Here is where the running program is located, here will be generated the no-sql boltdb database, 
 the access log and where it will store the uploads made by the client
+
+```
 # docker exec id-container ls -lh /go/goupload
+```
 
 Here are all sources of goupload
+```
 # docker exec id-container ls -lh /go/src/github.com/jeffotoni
-
+```
 
 ## Clone this repo into your GOPATH
 
