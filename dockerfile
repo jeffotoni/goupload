@@ -1,15 +1,14 @@
 FROM ubuntu:16.04
+
 MAINTAINER Jefferson Otoni <jeff.otoni@gmail.com>
 
 RUN apt-get update 
-
 RUN apt-get upgrade -f -y --force-yes
 
 RUN apt-get install nmap -f -y --force-yes
+RUN apt-get install vim -f -y --force-yes
 
 RUN apt-get install curl -f -y --force-yes
-
-RUN apt-get install vim -f -y --force-yes
 
 RUN apt-get install --no-install-recommends -y \
     ca-certificates \

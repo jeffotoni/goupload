@@ -193,7 +193,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 				glogs.Log.Printf("Copied: %v bytes\n", bytes)
 				glogs.Log.Printf("Copied: %v Kb\n", bytes/1024)
 				glogs.Log.Printf("Copied: %v Mb\n", bytes/1048576)
-				glogs.Log.Printf("Database key: \n", keyfile)
+				glogs.Log.Printf("Database key: %s\n", keyfile)
 
 				glogs.Log.Printf("...........................................................")
 				glogs.Log.Printf(" ")

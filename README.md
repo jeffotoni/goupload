@@ -1,6 +1,7 @@
 # goupload
-Simple restful server written in Go (golang) to receive uploads, we use boltdb a no-sql native go and using token with authentication.
-You can send files encrypted by the client, and ordinary files.
+Restful simple server written in Go (golang) to receive uploads, we use boltdb a native-non-sql go and using token with authentication.
+You can send client-encrypted files and common files.
+If you prefer dockerfile available so you can build in your image and run the goupload.
 
 ## Used libraries:
 - https://github.com/boltdb/bolt - No-sql native go(golang)
@@ -8,8 +9,13 @@ You can send files encrypted by the client, and ordinary files.
 
 ---
 * [A small summary](#summary)
-* [Install](#install)
+* [Docker](#docker)
+* [Clone](#clone)
+* [Get dependencies](#dependencies)
 * [Run](#runprogram)
+* [Logs Server](#rlogsserver)
+* [Build](#Build)
+* [Install](#install)
 * [Body function](#body-function)
 * [Examples Client](#examples-client)
 * [Upload File](#upload-files)
@@ -17,22 +23,57 @@ You can send files encrypted by the client, and ordinary files.
 ## A small summary 
 
 * [goupload.go]
+A simple restful server to receive common and encrypted files will store the file on the server.
+You will use port 8080 for communication with your api, will be written a no-sql database boltdb all 
+uploads made on the server, will be generated a log on disk of all accesses.
 
-A simple restful server for receiving common and encrypted files, will store the file on the server.
+
+## Docker [`Installing`] (Docker https://docs.docker.com/engine/installation)
+
+Copy dockerfile to your directory
+
+# docker build -t ubuntu16.4/gouload:version1.0 .
+# docker run -p 4001:8080 --name goupload --rm ubuntu16.4/gouload:version1.0
+
+Now is to test and see if everything is ok
+
+Sending a file to the server
+# curl -X POST -H 'Authorization:tyladfadiwkxceieixweiex747' --form nameupload=@Yourfile http://localhost:4001/upload
+
+Visualizing all logs generated in real time
+# docker exec id-container tail -f /go/goupload/goupload.log
+
+Listing container ports
+# docker exec id-container nmap localhost
+
+Here is where the running program is located, here will be generated the no-sql boltdb database, 
+the access log and where it will store the uploads made by the client
+# docker exec id-container ls -lh /go/goupload
+
+Here are all sources of goupload
+# docker exec id-container ls -lh /go/src/github.com/jeffotoni
 
 
-## Install
+## Clone this repo into your GOPATH
 
 ```sh
 git clone https://github.com/jeffotoni/goupload
 
 ```
 
+## Get dependencies
+
+```sh
+got get -u github.com/boltdb/bolt
+got get -u github.com/gorilla/mux
+got get -u github.com/jeffotoni/goupload
+
+```
+
 ## Run the program
 
 ```go
-go run server.go start
-
+# go run goupload.go start
 Services successfully tested
 Host: localhost
 Scheme:http
@@ -42,17 +83,59 @@ Loaded service
 
 ```
 
-Stopping the server
+## Logs generated from the server 
 
-```go
-go run server.go stop
+```
+#tail -f goupload.log
+2017/04/01 23:12:11 libupload.go:186: ......................start upload .........................
+2017/04/01 23:12:11 libupload.go:187: Authorization: tyladfadiwkxceieixweiex747
+2017/04/01 23:12:11 libupload.go:188: Path dir: uploads/tyladfadiwkxceieixweiex747
+2017/04/01 23:12:11 libupload.go:189: Path file: uploads/tyladfadiwkxceieixweiex747/file2.pdf
+2017/04/01 23:12:11 libupload.go:190: File: file2.pdf
+2017/04/01 23:12:11 libupload.go:191: Size:  0
+2017/04/01 23:12:11 libupload.go:192: Allowed:  500 Mb
+2017/04/01 23:12:11 libupload.go:193: Copied: 246281 bytes
+2017/04/01 23:12:11 libupload.go:194: Copied: 240 Kb
+2017/04/01 23:12:11 libupload.go:195: Copied: 0 Mb
+2017/04/01 23:12:11 libupload.go:196: Database key: tyladfadiwkxceieixweiex747/file2.pdf
+2017/04/01 23:12:11 libupload.go:198: ...........................................................
 
 ```
 
-Compiling upload server
+Stopping the server
 
 ```go
-go build server.go
+# go run goupload.go stop
+
+```
+
+## You can also Build goupload.go 
+
+```go
+# go build goupload.go
+# ./goupload.go
+Services successfully tested
+Host: localhost
+Scheme:http
+Port: 8080
+Instance POST  http://localhost:8080/upload
+Loaded service
+
+```
+
+## Install this repo into your GOPATH
+Check out your GOPATH, when install goupload the executable will go to your bin
+
+```sh
+# cd goupload && go install
+# goupload
+Services successfully tested
+Host: localhost
+Scheme:http
+Port: 8080
+Instance POST  http://localhost:8080/upload
+Loaded service
+
 ```
 
 ## Body function
