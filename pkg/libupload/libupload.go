@@ -63,6 +63,7 @@ var (
 func StartUploadServer() {
 
 	// Start ping database
+	// Creating ping ok
 
 	gbolt.Save("Ping", "ok")
 

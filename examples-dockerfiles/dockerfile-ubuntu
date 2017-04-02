@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-MAINTAINER Jefferson Otoni Lima <jeff.otoni@gmail.com>
+MAINTAINER Jefferson Otoni <jeff.otoni@gmail.com>
 
 RUN apt-get update 
 RUN apt-get upgrade -f -y --force-yes
@@ -35,12 +35,13 @@ RUN mkdir -p /go/goupload
 
 WORKDIR /go/goupload
 
+
 # Run the outyet command by default when the container starts.
+
 ENTRYPOINT /go/bin/goupload start
 
 # Document that the service listens on port 8080.
 EXPOSE 8080
 
-CMD ["bash"]
 #CMD ["/go/bin/upload", "start"]
-
+CMD ["bash"]

@@ -68,7 +68,10 @@ func Connect() *DB {
 	// Can not leave singleton the bank has to close every call,
 	// save, update, get etc ..
 
-	DataBaseTest(PathDb)
+	if err := DataBaseTest(PathDb); err != nil {
+
+		log.Fatal("Error Test database", err)
+	}
 
 	dbbolt, err := bolt.Open(PathDb, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
@@ -81,7 +84,7 @@ func Connect() *DB {
 
 /** [DataBaseTest This method is if there is a directory of the database
 if it does not exist it creates the directory and the file that we can call the bucket.] */
-func DataBaseTest(PathDb string) {
+func DataBaseTest(PathDb string) error {
 
 	if !ExistDb(DirDb) {
 
@@ -100,6 +103,8 @@ func DataBaseTest(PathDb string) {
 		checkError(errx)
 		defer w.Close()
 	}
+
+	return nil
 }
 
 /** [ExistDb Method only tests whether directory or file exists] */
@@ -259,6 +264,40 @@ func Get(keyS string) string {
 	}
 
 	return string(valbyte)
+}
+
+/**  ListAllKeys */
+
+func ListAllKeys() error {
+
+	db := Connect()
+
+	if ExistDb(PathDb) {
+
+		fmt.Println("Exist", db)
+
+	} else {
+
+		fmt.Println("Not exist!")
+		os.Exit(1)
+	}
+
+	db.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		b := tx.Bucket([]byte(Database))
+
+		c := b.Cursor()
+
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+
+			fmt.Printf("key=%s, value=%s\n", k, v)
+		}
+
+		return nil
+	})
+
+	return nil
+
 }
 
 /** [checkError Test the errors] */
