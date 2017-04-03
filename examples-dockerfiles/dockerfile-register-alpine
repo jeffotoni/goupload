@@ -4,4 +4,4 @@ MAINTAINER Jefferson Otoni Lima <jeff.otoni@gmail.com>
 
 RUN apk update && apk add git
 
-RUN go get -u github.com/boltdb/bolt && go get -u github.com/gorilla/mux
+RUN go get -u github.com/boltdb/bolt && go get -u github.com/gorilla/mux && got get -u github.com/fatih/color

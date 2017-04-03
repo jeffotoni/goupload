@@ -45,6 +45,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/gorilla/mux"
 	"github.com/jeffotoni/goupload/pkg/gbolt"
 	"github.com/jeffotoni/goupload/pkg/glogs"
@@ -57,7 +58,7 @@ var (
 	AUTHORIZATION = `tyladfadiwkxceieixweiex747`
 	socketfileTmp = `server.red`
 	socketfile    = `server.lock`
-	Port          = "8080"
+	Port          = "8081"
 	Scheme        = "http"
 	Database      = "ServerUpload"
 	Host          = "localhost"
@@ -91,11 +92,11 @@ func StartUploadServer() {
 	}
 
 	// Showing the status screen
-	fmt.Println("Services successfully tested")
-	fmt.Println("Host: " + Host)
-	fmt.Println("Scheme:" + Scheme)
-	fmt.Println("Port: " + Port)
-	fmt.Println("Instance POST ", UrlUpload())
+	color.Cyan("Services successfully tested")
+	color.Green("Host: " + Host)
+	color.Green("Scheme:" + Scheme)
+	color.Yellow("Port: " + Port)
+	color.White("Instance POST %s\n", UrlUpload())
 	fmt.Println("Loaded service")
 
 	// create route
