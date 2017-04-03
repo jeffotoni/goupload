@@ -416,10 +416,51 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 ```
 
+Body of main function Connect
+```go
+// using Connect
+// This method is what does
+// and returns our instance for access
+// to our no-sql database.
+func Connect() *DB {
+
+	if db2 == nil {
+
+		// Singleton the bank has to close every call,
+		// save, update, get etc ..
+		//
+		// Testing and verifying if there is a directory
+		// and file of our bucket, if it does not exist
+		// it creates the directory and the file so that
+		// we can manipulate all our bucket.
+		//
+		// Remember that boltdb with the open function also creates.
+		if err := DataBaseTest(PathDb); err != nil {
+
+			log.Fatal("Error Test database", err)
+		}
+
+		// Here is the object responsible for
+		// allowing calls to the methods, such as Get, Save, etc.
+		dbbolt, err = bolt.Open(PathDb, 0600, &bolt.Options{Timeout: 1 * time.Second})
+
+		if err != nil {
+
+			log.Fatal("connect error: ", err)
+		}
+
+		// We create a new reference
+		// just to facilitate
+		// understanding and syntax
+		db2 = &DB{dbbolt}
+	}
+
+	return db2
+}
+
+```
+
 Body of main function SaveDb
-
-The data is saved in boltdb
-
 ```go
 
 func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) error {
@@ -446,6 +487,7 @@ func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) er
 	}
 
 }
+
 ```
 
 ## Examples client
@@ -454,4 +496,5 @@ Uploading with Authorization
 
 ```
 curl -H 'Authorization:tyladfadiwkxceieixweiex747' --form nameupload=@nameFile.tar.bz2 http://localhost:8080/upload
+
 ```

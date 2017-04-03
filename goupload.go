@@ -1,4 +1,4 @@
-/***********
+/**********
 
  ▄▄▄██▀▀▀▓█████   █████▒ █████▒▒█████  ▄▄▄█████▓ ▒█████   ███▄    █  ██▓
    ▒██   ▓█   ▀ ▓██   ▒▓██   ▒▒██▒  ██▒▓  ██▒ ▓▒▒██▒  ██▒ ██ ▀█   █ ▓██▒
@@ -10,10 +10,8 @@
  ░ ░ ░      ░    ░ ░    ░ ░   ░ ░ ░ ▒    ░      ░ ░ ░ ▒     ░   ░ ░  ▒ ░
  ░   ░      ░  ░                  ░ ░               ░ ░           ░  ░
 
-*
-*
+
 * project server the Upload
-*
 * @package     main
 * @author      jeffotoni
 * @copyright   Copyright (c) 2017
@@ -22,6 +20,14 @@
 * @since       Version 0.1
 */
 
+// Package main
+// Restful simple server written in Go (golang) to
+// receive uploads, we use boltdb a native-non-sql go and
+// using token with authentication.
+//
+// You can send client-encrypted files and common files.
+// If you prefer dockerfile available so you can build
+// in your image and run the goupload.
 package main
 
 import (
@@ -31,29 +37,25 @@ import (
 	"github.com/jeffotoni/goupload/pkg/libupload"
 )
 
-/** [Main function] */
-
+// using func main to server stadalone of Upload
 func main() {
 
-	// start and stop server
+	if len(os.Args) > 1 { // Conferring the number of arguments
 
-	if len(os.Args) > 1 {
-
-		command := os.Args[1]
+		command := os.Args[1] // Get Command
 
 		if command != "" {
 
 			if command == "start" {
 
-				// Start server
-
+				// using StartUploadServer
+				// Method responsible for raising the restful service
+				// Has no arguments
 				libupload.StartUploadServer()
 
 			} else if command == "stop" {
 
-				// Stop server
-
-				fmt.Println("under development!!!!")
+				fmt.Println("under development!!!!") // Stop server
 
 			} else {
 

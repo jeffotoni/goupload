@@ -1,4 +1,4 @@
-/***********
+/*********
 
  ▄▄▄██▀▀▀▓█████   █████▒ █████▒▒█████  ▄▄▄█████▓ ▒█████   ███▄    █  ██▓
    ▒██   ▓█   ▀ ▓██   ▒▓██   ▒▒██▒  ██▒▓  ██▒ ▓▒▒██▒  ██▒ ██ ▀█   █ ▓██▒
@@ -22,6 +22,23 @@
 * @since       Version 0.1
 */
 
+// We have created some methods below to help us abstract some
+// functions of boltdb.
+// We realize how full the pkg bolt is, so many possibilities.
+//
+// We have discovered that there is no way to do a singleton of the
+// DB object, but we are still testing to try to figure out some more
+// flexible way to connect to buckets.
+//
+// The pkg bolt is very extensive and complete, so we had to implement the
+// basics, and gradually deepening as much as possible and as needed to
+// mature enough to propose improvements.
+//
+// The interesting thing is that we have several doubts that will
+// be solved with tests, we love to test, as we saw the possibility
+// of creating several databases and several buckets, we did not test yet
+// but realized that there is possibility to leave the environment
+// even more robust as the need.
 package gbolt
 
 import (
@@ -34,23 +51,46 @@ import (
 	"github.com/boltdb/bolt"
 )
 
+// Objects that define the database, directory where it will
+// contain the file that is all in the no-sql storage.
+//
+// We can create a hash of databases and storage or buckets
+// according to the need of the application and its complexity.
+// Multiple files can be created each with their own needs,
+// this further extends our possibilities for more
+// robust deployments with no-sql.
 var (
 	Database = []byte("DBGoupload")
 	DirDb    = "db"
 	PathDb   = "db/gbolt.db"
 )
 
+// Our struct for boltdb connection,
+// it is with it that we will instantiate
+// and do all necessary manipulation
+// operations in our no-sql database.
 type DB struct {
 	*bolt.DB
 }
 
+// Here we define the variables
+// that will manipulate and participate
+// in our entire program
 var (
 	dbbolt *bolt.DB
 	err    error
 )
 
+//var dbbolt = new(DB)
+
 //var djson map[string]interface{}
 
+// We create a struct of our structure we can call
+// the no-sql table, where we will use json to serve
+// as a standard for our data recording in our bucket,
+// remembering that our no-sql only accepts key and
+// value, then our value will be a json Composed
+// of several other fields.
 type JsonDataDb struct {
 	Key     string `json:"key"`
 	Name    string `json:"name"`
@@ -59,31 +99,55 @@ type JsonDataDb struct {
 	Created string `json:"key"`
 }
 
+// We created a json date type of our structure
 var djson JsonDataDb
+var db2 *DB
 
-/** Connect bolt db */
-
+// using Connect
+// This method is what does
+// and returns our instance for access
+// to our no-sql database.
 func Connect() *DB {
 
-	// Can not leave singleton the bank has to close every call,
-	// save, update, get etc ..
+	if db2 == nil {
 
-	if err := DataBaseTest(PathDb); err != nil {
+		// Singleton the bank has to close every call,
+		// save, update, get etc ..
+		//
+		// Testing and verifying if there is a directory
+		// and file of our bucket, if it does not exist
+		// it creates the directory and the file so that
+		// we can manipulate all our bucket.
+		//
+		// Remember that boltdb with the open function also creates.
+		if err := DataBaseTest(PathDb); err != nil {
 
-		log.Fatal("Error Test database", err)
+			log.Fatal("Error Test database", err)
+		}
+
+		// Here is the object responsible for
+		// allowing calls to the methods, such as Get, Save, etc.
+		dbbolt, err = bolt.Open(PathDb, 0600, &bolt.Options{Timeout: 1 * time.Second})
+
+		if err != nil {
+
+			log.Fatal("connect error: ", err)
+		}
+
+		// We create a new reference
+		// just to facilitate
+		// understanding and syntax
+		db2 = &DB{dbbolt}
 	}
 
-	dbbolt, err := bolt.Open(PathDb, 0600, &bolt.Options{Timeout: 1 * time.Second})
-	if err != nil {
-		log.Fatal("connect error: ", err)
-	}
-
-	return &DB{dbbolt}
-
+	return db2
 }
 
-/** [DataBaseTest This method is if there is a directory of the database
-if it does not exist it creates the directory and the file that we can call the bucket.] */
+//  DataBaseTest This method is if there is a directory
+//  of the database
+//
+// if it does not exist it creates the directory
+// and the file that we can call the bucket.
 func DataBaseTest(PathDb string) error {
 
 	if !ExistDb(DirDb) {
@@ -107,7 +171,7 @@ func DataBaseTest(PathDb string) error {
 	return nil
 }
 
-/** [ExistDb Method only tests whether directory or file exists] */
+//  [ExistDb Method only tests whether directory or file exists]
 func ExistDb(name string) bool {
 
 	if _, err := os.Stat(name); err != nil {
@@ -121,7 +185,7 @@ func ExistDb(name string) bool {
 	return true
 }
 
-/** [SaveDb This method prepares the whole json string to save in boltdb] */
+// SaveDb This method prepares the whole json string to save in boltdb
 func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) error {
 
 	times := fmt.Sprintf("%s", time.Now())
@@ -146,14 +210,13 @@ func SaveDb(keyfile string, namefile string, sizefile int64, pathFile string) er
 	}
 }
 
-/** [JsonGet This method is responsible for returning the
-content in json format] */
-
+// JsonGet This method is responsible for returning the
+// content in json format]
 func JsonGet(keyS string) string {
 
 	db := Connect()
 
-	defer db.Close()
+	//defer db.Close()
 
 	key := []byte(keyS)
 
@@ -191,13 +254,12 @@ func JsonGet(keyS string) string {
 	return string(valbyte)
 }
 
-/** [Save This method is responsible for saving on boltdb] */
-
+// Save This method is responsible for saving on boltdb
 func Save(keyS string, valueS string) error {
 
 	db := Connect()
 
-	defer db.Close()
+	//defer db.Close()
 
 	key := []byte(keyS)
 	value := []byte(valueS)
@@ -233,13 +295,12 @@ func Save(keyS string, valueS string) error {
 	return nil
 }
 
-/** [Get This method returns a string result as the last key] */
-
+// Get This method returns a string result as the last key
 func Get(keyS string) string {
 
 	db := Connect()
 
-	defer db.Close()
+	//defer db.Close()
 
 	key := []byte(keyS)
 
@@ -266,8 +327,10 @@ func Get(keyS string) string {
 	return string(valbyte)
 }
 
-/**  ListAllKeys */
-
+// using ListAllKeys
+// Method responsible for listing all key parts
+// and their respective values, in the bucket
+// that is configured.
 func ListAllKeys() error {
 
 	db := Connect()
@@ -283,6 +346,7 @@ func ListAllKeys() error {
 	}
 
 	db.View(func(tx *bolt.Tx) error {
+
 		// Assume bucket exists and has keys
 		b := tx.Bucket([]byte(Database))
 
@@ -300,8 +364,7 @@ func ListAllKeys() error {
 
 }
 
-/** [checkError Test the errors] */
-
+// using checkError Test the errors
 func checkError(err error) {
 
 	if err != nil {

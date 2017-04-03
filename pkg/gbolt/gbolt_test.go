@@ -59,7 +59,7 @@ func TestSave(t *testing.T) {
 		}
 	}
 
-	ListAllKeys()
+	ListAllKeysç()
 }
 
 func TestGet(t *testing.T) {
