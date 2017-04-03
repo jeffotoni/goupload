@@ -263,23 +263,36 @@ Body of StartUploadServer
 
 ```go
 
-/** [StartUploadServer Will build our route, and make calls to the upload method and validations] */
-
+// using startUploadServer restful server upload
+// This method will generate the handlerFunc
+// for our api upload
 func StartUploadServer() {
 
-	fmt.Println("Services successfully tested")
+	// Testing boltdb database
+	// Start ping database
+	// Creating ping ok
+	gbolt.Save("Ping", "ok")
 
+	// Testing whether it was recorded
+	// and read on the boltdb, we
+	// recorded a Ping and then
+	// read it back.
+	if gbolt.Get("Ping") != "ok" {
+
+		fmt.Println("Services Error Data Base!")
+		os.Exit(1)
+	}
+
+	// Showing the status screen
+	fmt.Println("Services successfully tested")
 	fmt.Println("Host: " + Host)
 	fmt.Println("Scheme:" + Scheme)
 	fmt.Println("Port: " + Port)
-
 	fmt.Println("Instance POST ", UrlUpload())
 	fmt.Println("Loaded service")
 
-	///create route
-
+	// create route
 	router := mux.NewRouter().StrictSlash(true)
-
 	router.Handle("/", http.FileServer(http.Dir("message")))
 
 	router.
@@ -288,8 +301,8 @@ func StartUploadServer() {
 			if r.Method == "POST" {
 
 				// Build the method here
-
 				fmt.Fprintln(w, "http ", 200, "ok")
+				UploadFile(w, r)
 
 			} else if r.Method == "GET" {
 
@@ -301,19 +314,22 @@ func StartUploadServer() {
 			}
 		})
 
+	// Configuration of our ListenAndServer, [
+	// here we put all our configurations that
+	// the server will manage
 	httpConf = &http.Server{
 
 		Handler: router,
-		Addr:    Host + ":" + Port,
+		Addr:    HostHttp + ":" + Port,
 
 		// Good idea!!! Good live!!!
-
 		WriteTimeout: 5 * time.Second,
 		ReadTimeout:  5 * time.Second,
 	}
 
 	log.Fatal(httpConf.ListenAndServe())
 }
+
 
 ```
 
@@ -323,14 +339,17 @@ Uploadfile implemented method will create a folder as the name of the token and 
 
 ```go
 
-/** [UploadFile method implemented] */
-
+// using UploadFile method implemented
+// This method will copy the file that is
+// coming in by the http.Request handler
+// and copy to our physical disk file
 func UploadFile(w http.ResponseWriter, r *http.Request) {
 
-	// SET SIZE UPLOAD
+	// Setting the maximum size
+	// of the mega byte upload
+	UploadSize = 500
 
-	UploadSize = 500 //MB
-
+	// Capturing Authorization of Header
 	Autorization := r.Header.Get("Authorization")
 
 	if Autorization == "" {
@@ -339,15 +358,19 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		////check database get id user
-
+		// Checking Authorization
+		// if it is enabled for access
 		if Autorization == AUTHORIZATION {
 
-			///Valid user
+			// Valid user
 			acessekey := Autorization
 
+			// Converting byte file size to mega bytes
 			sizeMaxUpload := r.ContentLength / 1048576 ///Mb
 
+			// If the file size is larger than allowed,
+			// do not allow uploading and send
+			// a message to the client
 			if sizeMaxUpload > UploadSize {
 
 				fmt.Println("The maximum upload size: ", UploadSize, "Mb is large: ", sizeMaxUpload, "Mb")
@@ -356,7 +379,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 			} else {
 
 				// field upload
-
 				file, handler, _ := r.FormFile("nameupload")
 				defer file.Close()
 
@@ -369,20 +391,25 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 					os.MkdirAll(pathUpKeyUser, 0777)
 				}
 
+				// Mounting the physical path where the
+				// file will be uploaded, the folder has
+				// nly one level, its access
+				// code Autorization + name file
 				pathUserAcess := PathLocal + acessekey + "/" + handler.Filename
 
 				// copy file and write
-
 				f, _ := os.OpenFile(pathUserAcess, os.O_WRONLY|os.O_CREATE, 0777)
 				defer f.Close()
 
 				bytes, _ := io.Copy(f, file)
 				keyfile := acessekey + "/" + handler.Filename
 
+				// Saving the result of the upload
+				// in the no-sql database
 				SaveDb(keyfile, handler.Filename, bytes, pathUserAcess)
 
-				// Generates a log of everything that happens on the server
-
+				// Generates a log of everything that
+				// happens on the server
 				flag.Parse()
 				glogs.LogNew(*glogs.PathLog)
 
