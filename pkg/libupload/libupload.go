@@ -54,10 +54,12 @@ import (
 // using Environment variables and keys
 // Are our system settings in memory
 var (
-	httpConf      *http.Server
+	httpConf *http.Server
+
+	// Is for the system to be able to release
+	// or to authenticate our url in a
+	// simple way our upload
 	AUTHORIZATION = `tyladfadiwkxceieixweiex747`
-	socketfileTmp = `server.red`
-	socketfile    = `server.lock`
 	Port          = "8081"
 	Scheme        = "http"
 	Database      = "ServerUpload"
@@ -96,7 +98,7 @@ func StartUploadServer() {
 	color.Green("Host: " + Host)
 	color.Green("Scheme:" + Scheme)
 	color.Yellow("Port: " + Port)
-	color.White("Instance POST %s\n", UrlUpload())
+	color.White("POST %s\n", UrlUpload())
 	fmt.Println("Loaded service")
 
 	// create route
@@ -178,7 +180,15 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 			} else {
 
 				// field upload
-				file, handler, _ := r.FormFile("nameupload")
+				file, handler, errf := r.FormFile("nameupload")
+
+				if errf != nil {
+
+					color.Red("Error big file, try again!")
+					http.Error(w, "Error parsing uploaded file: "+errf.Error(), http.StatusBadRequest)
+					return
+				}
+
 				defer file.Close()
 
 				///create dir to key

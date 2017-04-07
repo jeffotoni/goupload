@@ -6,7 +6,7 @@ If you prefer dockerfile available so you can build in your image and run the go
 ## Used libraries:
 - https://github.com/boltdb/bolt - No-sql native go(golang)
 - https://github.com/gorilla/mux - Implements a request router and dispatcher for matching incoming requests
-- github.com/fatih/color - Help define the colors in the terminal
+- https://github.com/fatih/color - Help define the colors in the terminal
 
 ---
 * [A small summary](#summary)
